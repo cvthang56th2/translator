@@ -1,51 +1,24 @@
-// define a handler
-function doc_keyUp(e: KeyboardEvent) {
-  if (e.ctrlKey && e.shiftKey && e.code === 'KeyE') {
-    console.log('event')
-    let activeElement = document.activeElement
-    let text = activeElement?.value
-    if (!text) {
-      text = activeElement?.innerText
-    }
-    if (!activeElement || !text) {
-      return
-    }
-    chrome.runtime.sendMessage({
-      action: "translate",
-      data: {
-        text
-      }
-    }, function(response: any) {
-      const { translatedText } = response
-      console.log('translatedText', translatedText)
-      if (activeElement.value) {
-        activeElement.value = translatedText
-      } else {
-        navigator.clipboard.writeText(translatedText);
-        selectActiveElement()
-        showToast()
-      }
-    });
-  }
-}
+let timeout
+function showToast(text = 'Copied!') {
+  // Get the copybar DIV
+  var el = document.getElementById("copybar");
 
-function selectActiveElement () {
-  const element = document.activeElement; // get the currently focused element
-  const range = document.createRange(); // create a new range object
-  range.selectNodeContents(element); // select the contents of the element
-  const selection = window.getSelection(); // get the current selection object
-  selection.removeAllRanges(); // clear any existing selection
-  selection.addRange(range); // add the new range to the selection
-}
+  // Add the "show" class to DIV
+  el.className = "show";
+  el.innerHTML = text
 
-document.addEventListener('keyup', doc_keyUp, false);
+  // After 3 seconds, remove the show class from DIV
+  clearTimeout(timeout)
+  timeout = setTimeout(function(){ el.className = el.className.replace("show", ""); }, 3000);
+}
 
 const node = document.createElement("div");
 node.innerHTML = `
-<div id="copybar">Copied!</div>
+<div id="copybar"></div>
 <style>
 /* The copybar - position it at the bottom and in the middle of the screen */
 #copybar {
+  max-width: calc(100vw - 60px);
   visibility: hidden; /* Hidden by default. Visible on click */
   background-color: #333; /* Black background color */
   color: #fff; /* White text color */
@@ -53,12 +26,22 @@ node.innerHTML = `
   border-radius: 2px; /* Rounded borders */
   padding: 16px; /* Padding */
   position: fixed; /* Sit on top of the screen */
-  z-index: 1; /* Add a z-index if needed */
-  right: 30px;
+  z-index: 9999; /* Add a z-index if needed */
+  right: 20px;
   top: 30px;
 }
 
+#copybar p {
+  font-size: 15px;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
 /* Show the copybar when clicking on a button (class added with JavaScript) */
+#copybar:hover {
+  visibility: visible !important; /* Show the copybar */
+  animation: none !important;
+}
 #copybar.show {
   visibility: visible; /* Show the copybar */
   /* Add animation: Take 0.5 seconds to fade in and out the copybar.
@@ -89,16 +72,65 @@ node.innerHTML = `
 }
 </style>
 `
-function showToast() {
-  // Get the copybar DIV
-  var el = document.getElementById("copybar");
 
-  // Add the "show" class to DIV
-  el.className = "show";
-
-  // After 3 seconds, remove the show class from DIV
-  setTimeout(function(){ el.className = el.className.replace("show", ""); }, 3000);
-}
 document.querySelector('body')?.appendChild(node);
+
+// define a handler
+function doc_keyUp(e: KeyboardEvent) {
+  if (e.ctrlKey && e.shiftKey && e.code === 'KeyE') {
+    let getTextMethod = 'selection'
+    let text = window.getSelection()?.toString()
+    if (!text) {
+      const activeElement = document.activeElement
+      if (!activeElement) {
+        return
+      }
+      text = activeElement.value
+      getTextMethod = 'activeValue'
+      if (!text) {
+        getTextMethod = 'activeText'
+        text = activeElement.innerText
+      }
+    }
+    if (!text) {
+      return
+    }
+    chrome.runtime.sendMessage({
+      action: "translate",
+      data: {
+        text
+      }
+    }, function(response: any) {
+      const { translatedText } = response
+      console.log('translatedText', translatedText)
+      switch (getTextMethod) {
+        case 'selection':
+        case 'activeText':
+          navigator.clipboard.writeText(translatedText);
+          showToast(`<p>Copied:</p><div>${translatedText}</div>`)
+          if (getTextMethod === 'activeText') {
+            selectActiveElement()
+          }
+          break;
+        case 'activeValue':
+          if (document.activeElement) {
+            document.activeElement.value = translatedText
+          }
+          break;
+      }
+    });
+  }
+}
+
+function selectActiveElement () {
+  const element = document.activeElement; // get the currently focused element
+  const range = document.createRange(); // create a new range object
+  range.selectNodeContents(element); // select the contents of the element
+  const selection = window.getSelection(); // get the current selection object
+  selection.removeAllRanges(); // clear any existing selection
+  selection.addRange(range); // add the new range to the selection
+}
+
+document.addEventListener('keyup', doc_keyUp, false);
 
 export { }
