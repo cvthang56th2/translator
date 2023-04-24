@@ -95,6 +95,8 @@ function doc_keyUp(e: KeyboardEvent) {
     if (!text) {
       return
     }
+    console.log('text', text)
+    showToast(`<p>Copied:</p><div>Processing...</div>`)
     chrome.runtime.sendMessage({
       action: "translate",
       data: {
