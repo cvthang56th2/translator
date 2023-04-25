@@ -140,7 +140,7 @@ function getTextAndQuickTranslate (type: string) {
         if (document.activeElement) {
           // @ts-ignore
           document.activeElement.value = translatedText
-          showToast(`OK`)
+          showToast(`Done`)
         }
         break;
     }
