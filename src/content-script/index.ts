@@ -74,21 +74,30 @@ node.innerHTML = `
 
 document.querySelector('body')?.appendChild(node);
 
+let processing = false
 // define a handler
 function doc_keyUp(e: KeyboardEvent) {
-  if (e.ctrlKey && e.shiftKey && e.code === 'KeyE') {
-    getTextAndQuickTranslate()
+  if (((e.ctrlKey && e.shiftKey) || (e.altKey && !e.ctrlKey && !e.shiftKey)) && (['KeyE', 'KeyV'].includes(e.code))) {
+    getTextAndQuickTranslate(e.code === 'KeyE' ? 'vi-en' : 'en-vi')
   }
 }
 
 // @ts-ignore
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-  if (request.action === "quick-translate") {
-    getTextAndQuickTranslate()
+  if (request.action === "quick-translate-vi-en") {
+    getTextAndQuickTranslate('vi-en')
+  }
+  if (request.action === "quick-translate-en-vi") {
+    getTextAndQuickTranslate('en-vi')
   }
 });
 
-function getTextAndQuickTranslate () {
+function getTextAndQuickTranslate (type: string) {
+  if (processing) {
+    showToast(`<div>Please wait...</div>`)
+    return
+  }
+  processing = true
   let getTextMethod = 'selection'
   let text = window.getSelection()?.toString()
   if (!text) {
@@ -112,7 +121,8 @@ function getTextAndQuickTranslate () {
   chrome.runtime.sendMessage({
     action: "translate",
     data: {
-      text
+      text,
+      type
     }
   }, function(response: any) {
     const { translatedText } = response
@@ -134,6 +144,7 @@ function getTextAndQuickTranslate () {
         }
         break;
     }
+    processing = false
   });
 }
 
