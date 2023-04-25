@@ -108,7 +108,7 @@ function getTextAndQuickTranslate () {
     return
   }
   console.log('text', text)
-  showToast(`<p>Copied:</p><div>Processing...</div>`)
+  showToast(`<div>Processing...</div>`)
   // @ts-ignore
   chrome.runtime.sendMessage({
     action: "translate",
