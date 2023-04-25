@@ -131,6 +131,7 @@ function getTextAndQuickTranslate () {
         if (document.activeElement) {
           // @ts-ignore
           document.activeElement.value = translatedText
+          showToast(`<p>OK</p>`)
         }
         break;
     }
