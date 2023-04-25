@@ -131,7 +131,7 @@ function getTextAndQuickTranslate (type: string) {
       case 'selection':
       case 'activeText':
         navigator.clipboard.writeText(translatedText);
-        showToast(`<p>Copied:</p><div>${translatedText}</div>`)
+        showToast(`<p>Copied:</p>${translatedText.split('\n').map((t: string) => `<div>${t}</div>`).join('')}`)
         if (getTextMethod === 'activeText') {
           selectActiveElement()
         }
