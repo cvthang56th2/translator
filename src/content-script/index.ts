@@ -32,22 +32,21 @@ node.innerHTML = `
 }
 
 #copybar p {
-  font-size: 15px;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   font-weight: 600;
 }
 
 /* Show the copybar when clicking on a button (class added with JavaScript) */
 #copybar:hover {
   visibility: visible !important; /* Show the copybar */
-  animation: none !important;
+  // animation: none !important;
 }
 #copybar.show {
   visibility: visible; /* Show the copybar */
   /* Add animation: Take 0.5 seconds to fade in and out the copybar.
   However, delay the fade out process for 2.5 seconds */
-  -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
-  animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  // -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  // animation: fadein 0.5s, fadeout 0.5s 2.5s;
 }
 
 /* Animations to fade the copybar in and out */
