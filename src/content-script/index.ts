@@ -78,52 +78,63 @@ document.querySelector('body')?.appendChild(node);
 // define a handler
 function doc_keyUp(e: KeyboardEvent) {
   if (e.ctrlKey && e.shiftKey && e.code === 'KeyE') {
-    let getTextMethod = 'selection'
-    let text = window.getSelection()?.toString()
-    if (!text) {
-      const activeElement:any = document.activeElement
-      if (!activeElement) {
-        return
-      }
-      text = activeElement.value
-      getTextMethod = 'activeValue'
-      if (!text) {
-        getTextMethod = 'activeText'
-        text = activeElement.innerText
-      }
-    }
-    if (!text) {
+    getTextAndQuickTranslate()
+  }
+}
+
+// @ts-ignore
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+  if (request.action === "quick-translate") {
+    getTextAndQuickTranslate()
+  }
+});
+
+function getTextAndQuickTranslate () {
+  let getTextMethod = 'selection'
+  let text = window.getSelection()?.toString()
+  if (!text) {
+    const activeElement:any = document.activeElement
+    if (!activeElement) {
       return
     }
-    console.log('text', text)
-    showToast(`<p>Copied:</p><div>Processing...</div>`)
-    // @ts-ignore
-    chrome.runtime.sendMessage({
-      action: "translate",
-      data: {
-        text
-      }
-    }, function(response: any) {
-      const { translatedText } = response
-      console.log('translatedText', translatedText)
-      switch (getTextMethod) {
-        case 'selection':
-        case 'activeText':
-          navigator.clipboard.writeText(translatedText);
-          showToast(`<p>Copied:</p><div>${translatedText}</div>`)
-          if (getTextMethod === 'activeText') {
-            selectActiveElement()
-          }
-          break;
-        case 'activeValue':
-          if (document.activeElement) {
-            // @ts-ignore
-            document.activeElement.value = translatedText
-          }
-          break;
-      }
-    });
+    text = activeElement.value
+    getTextMethod = 'activeValue'
+    if (!text) {
+      getTextMethod = 'activeText'
+      text = activeElement.innerText
+    }
   }
+  if (!text) {
+    return
+  }
+  console.log('text', text)
+  showToast(`<p>Copied:</p><div>Processing...</div>`)
+  // @ts-ignore
+  chrome.runtime.sendMessage({
+    action: "translate",
+    data: {
+      text
+    }
+  }, function(response: any) {
+    const { translatedText } = response
+    console.log('translatedText', translatedText)
+    switch (getTextMethod) {
+      case 'selection':
+      case 'activeText':
+        navigator.clipboard.writeText(translatedText);
+        showToast(`<p>Copied:</p><div>${translatedText}</div>`)
+        if (getTextMethod === 'activeText') {
+          selectActiveElement()
+        }
+        break;
+      case 'activeValue':
+        if (document.activeElement) {
+          // @ts-ignore
+          document.activeElement.value = translatedText
+        }
+        break;
+    }
+  });
 }
 
 function selectActiveElement () {

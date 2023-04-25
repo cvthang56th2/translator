@@ -24,5 +24,23 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   return true;
 });
 
+// @ts-ignore
+chrome.contextMenus.create({
+  id: "quick-translate",
+  title: "Quick Translate",
+  contexts: ["selection"]
+}, function() {
+  console.log("Context menu item created");
+});
+
+// @ts-ignore
+chrome.contextMenus.onClicked.addListener(function(info, tab) {
+  if (info.menuItemId === "quick-translate") {
+    // Send a message to the content script
+    // @ts-ignore
+    chrome.tabs.sendMessage(tab.id, {action: "quick-translate"}, function(response) {
+    });
+  }
+});
 export {
 }
