@@ -116,7 +116,7 @@ function getTextAndQuickTranslate () {
     }
   }, function(response: any) {
     const { translatedText } = response
-    console.log('translatedText', translatedText)
+    console.log(translatedText)
     switch (getTextMethod) {
       case 'selection':
       case 'activeText':
