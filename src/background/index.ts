@@ -14,6 +14,7 @@ async function translateSelectedText(text: string) {
     return null;
   }
 }
+// @ts-ignore
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   if (request.action == "translate" && request.data && request.data.text) {
     translateSelectedText(request.data.text).then(translatedText => {

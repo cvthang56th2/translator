@@ -1,7 +1,7 @@
-let timeout
+let timeout:any = null
 function showToast(text = 'Copied!') {
   // Get the copybar DIV
-  var el = document.getElementById("copybar");
+  var el:any = document.getElementById("copybar");
 
   // Add the "show" class to DIV
   el.className = "show";
@@ -81,7 +81,7 @@ function doc_keyUp(e: KeyboardEvent) {
     let getTextMethod = 'selection'
     let text = window.getSelection()?.toString()
     if (!text) {
-      const activeElement = document.activeElement
+      const activeElement:any = document.activeElement
       if (!activeElement) {
         return
       }
@@ -97,6 +97,7 @@ function doc_keyUp(e: KeyboardEvent) {
     }
     console.log('text', text)
     showToast(`<p>Copied:</p><div>Processing...</div>`)
+    // @ts-ignore
     chrome.runtime.sendMessage({
       action: "translate",
       data: {
@@ -116,6 +117,7 @@ function doc_keyUp(e: KeyboardEvent) {
           break;
         case 'activeValue':
           if (document.activeElement) {
+            // @ts-ignore
             document.activeElement.value = translatedText
           }
           break;
@@ -125,10 +127,10 @@ function doc_keyUp(e: KeyboardEvent) {
 }
 
 function selectActiveElement () {
-  const element = document.activeElement; // get the currently focused element
+  const element:any = document.activeElement; // get the currently focused element
   const range = document.createRange(); // create a new range object
   range.selectNodeContents(element); // select the contents of the element
-  const selection = window.getSelection(); // get the current selection object
+  const selection:any = window.getSelection(); // get the current selection object
   selection.removeAllRanges(); // clear any existing selection
   selection.addRange(range); // add the new range to the selection
 }
